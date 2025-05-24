@@ -56,8 +56,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalPrevBtn = document.getElementById('modal-prev-btn');
     const modalNextBtn = document.getElementById('modal-next-btn');
     
+    // New elements for edit functionality
+    const modalFlashcardView = document.getElementById('modal-flashcard-view');
+    const modalEditFormView = document.getElementById('modal-edit-form-view');
+    const modalEditBtn = document.getElementById('modal-edit-btn');
+    const editQuestionInput = document.getElementById('edit-question-input');
+    const editAnswerInput = document.getElementById('edit-answer-input');
+    const saveEditBtn = document.getElementById('save-edit-btn'); 
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    const modalNavigation = document.querySelector('.modal-navigation');
+    const modalDeleteBtn = document.getElementById('modal-delete-btn');
+
     let currentModalTopicId = null; // Will store the actual ID string of the topic in modal
     let currentModalCardIndex = -1; // Will store the index of the card within its topic's flashcards array
+    let cardBeingEditedId = null; // To store the ID of the card being edited
 
     // Function to render topics to the UI
     function renderTopics() {
@@ -317,10 +329,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         modalFlashcardContainer.appendChild(cardDiv);
+        
+        // Ensure correct views are shown when displaying a card
+        if(modalFlashcardView) modalFlashcardView.style.display = 'block';
+        if(modalEditFormView) modalEditFormView.style.display = 'none';
+        if(modalNavigation) modalNavigation.style.display = 'flex';
+
         updateModalNavButtons();
     }
 
     function openModal(topicActualId, cardActualId) {
+        // Ensure edit form is hidden and card view is shown by default when opening modal
+        if(modalFlashcardView) modalFlashcardView.style.display = 'block';
+        if(modalEditFormView) modalEditFormView.style.display = 'none';
+        if(modalNavigation) modalNavigation.style.display = 'flex';
+
         displayCardInModal(topicActualId, cardActualId); // Populate content first
         if (currentModalTopicId) { // Only show modal if card display was successful
             flashcardModal.classList.add('visible');
@@ -332,10 +355,15 @@ document.addEventListener('DOMContentLoaded', () => {
         flashcardModal.classList.remove('visible');
         setTimeout(() => {
             modalFlashcardContainer.innerHTML = ''; 
+            // Reset views to default state for next open
+            if(modalFlashcardView) modalFlashcardView.style.display = 'block';
+            if(modalEditFormView) modalEditFormView.style.display = 'none';
+            if(modalNavigation) modalNavigation.style.display = 'flex';
         }, 300); 
         document.body.style.overflow = ''; 
         currentModalTopicId = null; 
         currentModalCardIndex = -1;
+        cardBeingEditedId = null; // Reset card being edited
         updateModalNavButtons(); // Reset/disable nav buttons
     }
 
@@ -363,6 +391,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if(modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
     if(modalPrevBtn) modalPrevBtn.addEventListener('click', navigateToPrevCard);
     if(modalNextBtn) modalNextBtn.addEventListener('click', navigateToNextCard);
+    if(modalEditBtn) modalEditBtn.addEventListener('click', startEditFlashcard);
+    if(cancelEditBtn) cancelEditBtn.addEventListener('click', cancelEditFlashcard);
 
     if(flashcardModal) {
         flashcardModal.addEventListener('click', (event) => {
@@ -384,4 +414,172 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     // --- End Modal Functions ---
+
+    // --- Edit Mode Functions ---
+    function startEditFlashcard() {
+        if (currentModalTopicId === null || currentModalCardIndex === -1) {
+            console.error("No card selected to edit.");
+            return;
+        }
+
+        const topic = topics.find(t => t.id === currentModalTopicId);
+        if (!topic || !topic.flashcards || !topic.flashcards[currentModalCardIndex]) {
+            console.error("Card data not found for editing.");
+            return;
+        }
+
+        const cardData = topic.flashcards[currentModalCardIndex];
+        cardBeingEditedId = cardData.id; 
+
+        if(editQuestionInput) editQuestionInput.value = cardData.question; 
+        if(editAnswerInput) editAnswerInput.value = cardData.answer;   
+
+        if(modalFlashcardView) modalFlashcardView.style.display = 'none';
+        if(modalNavigation) modalNavigation.style.display = 'none'; 
+        if(modalEditFormView) modalEditFormView.style.display = 'block';
+    }
+
+    function cancelEditFlashcard() {
+        if(modalEditFormView) modalEditFormView.style.display = 'none';
+        if(modalFlashcardView) modalFlashcardView.style.display = 'block';
+        if(modalNavigation) modalNavigation.style.display = 'flex'; 
+        cardBeingEditedId = null;
+        // Optionally, re-display the card to ensure it's not showing stale (flipped) state if that's an issue
+        // const topic = topics.find(t => t.id === currentModalTopicId);
+        // if (topic && topic.flashcards && topic.flashcards[currentModalCardIndex]) {
+        //    displayCardInModal(currentModalTopicId, topic.flashcards[currentModalCardIndex].id);
+        // }
+    }
+    // --- End Edit Mode Functions ---
+
+    // --- Save Edit Function ---
+    function saveEditFlashcard() {
+        if (!cardBeingEditedId || currentModalTopicId === null) {
+            alert('Error: No card selected for editing or topic context lost.');
+            // Optionally, reset view
+            if(modalEditFormView) modalEditFormView.style.display = 'none';
+            if(modalFlashcardView) modalFlashcardView.style.display = 'block';
+            if(modalNavigation) modalNavigation.style.display = 'flex';
+            return;
+        }
+
+        const newQuestion = editQuestionInput.value.trim();
+        const newAnswer = editAnswerInput.value.trim();
+
+        if (!newQuestion || !newAnswer) {
+            alert('Please provide both a question and an answer.');
+            return;
+        }
+
+        const topic = topics.find(t => t.id === currentModalTopicId);
+        if (!topic) {
+            alert('Error: Topic not found.');
+            return;
+        }
+
+        const cardIndex = topic.flashcards.findIndex(fc => fc.id === cardBeingEditedId);
+        if (cardIndex === -1) {
+            alert('Error: Card not found for saving.');
+            return;
+        }
+
+        // Update the card data
+        topic.flashcards[cardIndex].question = newQuestion;
+        topic.flashcards[cardIndex].answer = newAnswer;
+
+        saveDataToJSON(); // Persist changes (simulated)
+
+        // Reset editing state
+        const savedCardId = cardBeingEditedId; // Store before resetting
+        cardBeingEditedId = null; 
+        
+        // Hide edit form, show card view (displayCardInModal will handle this too)
+        // modalEditFormView.style.display = 'none';
+        // modalFlashcardView.style.display = 'block';
+        // modalNavigation.style.display = 'flex';
+
+        // Refresh the displayed card in the modal to show the saved changes
+        displayCardInModal(currentModalTopicId, savedCardId); 
+        
+        // Re-render grid flashcards if a topic is selected in the main view
+        // currentTopicId is the index of the selected topic in the main list
+        // We need to ensure it's valid and corresponds to the currentModalTopicId
+        const selectedGridTopicIndex = topics.findIndex(t => t.id === currentModalTopicId);
+        if (selectedGridTopicIndex !== -1 && currentTopicId === selectedGridTopicIndex) {
+             renderFlashcards(currentTopicId);
+        }
+
+        alert('Flashcard updated successfully!'); // Optional feedback
+    }
+    // --- End Save Edit Function ---
+
+    // Add event listener for save edit button
+    if(saveEditBtn) saveEditBtn.addEventListener('click', saveEditFlashcard);
+    if(modalDeleteBtn) modalDeleteBtn.addEventListener('click', deleteFlashcard);
 });
+
+// --- Delete Flashcard Function ---
+function deleteFlashcard() {
+    if (currentModalTopicId === null || currentModalCardIndex === -1) {
+        alert('No card selected to delete.');
+        return;
+    }
+
+    const topic = topics.find(t => t.id === currentModalTopicId);
+    if (!topic) {
+        alert('Error: Topic not found.');
+        return;
+    }
+    
+    const cardToDelete = topic.flashcards[currentModalCardIndex];
+
+    if (!confirm(`Are you sure you want to delete the flashcard: "${cardToDelete.question.substring(0, 50)}..."?`)) {
+        return; // User cancelled
+    }
+
+    // Remove the card from the array
+    topic.flashcards.splice(currentModalCardIndex, 1);
+    saveDataToJSON(); // Persist changes (simulated)
+
+    alert('Flashcard deleted.');
+
+    const topicIdxInTopicsArray = topics.findIndex(t => t.id === currentModalTopicId);
+
+    closeModal(); // Close the modal first
+
+    // Refresh the grid view for the current topic
+    renderTopics(); // Re-render topics in case a topic becomes empty or for future topic deletion logic
+
+    // Try to re-select the same topic in the grid, if it still exists
+    if (topicIdxInTopicsArray !== -1 && topics[topicIdxInTopicsArray]) {
+        // The 'currentTopicId' global variable holds the *index* of the topic selected in the main view.
+        // We need to find the DOM element for the topic that was being viewed in the modal.
+        const topicLiToReselect = document.querySelector(`#topic-list-container li[data-topic-id='${topicIdxInTopicsArray}']`);
+
+        if (topicLiToReselect) {
+            // If the currently selected topic in the grid (currentTopicId / index)
+            // is the same as the one from which the card was deleted, click it to refresh its flashcards.
+            // Otherwise, if a different topic is selected in the grid, its view is already correct.
+            if (currentTopicId === topicIdxInTopicsArray) {
+                 topicLiToReselect.click(); 
+            } else {
+                // If the deleted card's topic is NOT the one selected in the grid,
+                // we still need to ensure the grid view of the deleted card's topic is updated
+                // if the user later clicks on it. renderFlashcards for the *currently selected*
+                // grid topic is implicitly handled if its LI element is clicked.
+                // If no topic is selected, or a different one, then the main grid view is fine.
+                // If the deleted card was from the currently selected topic in grid, its renderFlashcards will be triggered.
+                // This logic seems fine.
+            }
+        } else {
+            // The topic LI element is no longer found (e.g., if topics could be deleted)
+            // or if the topic list was drastically changed by renderTopics.
+            // Reset the flashcard display.
+            renderFlashcards(null);
+        }
+    } else {
+        // Topic itself was deleted or index is now out of bounds.
+        renderFlashcards(null);
+    }
+}
+// --- End Delete Flashcard Function ---
