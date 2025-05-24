@@ -1,24 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Simulating content that would be in db.json
-    let mockJsonData = {
-        topics: [
-            {
-                id: "topic-1678886400000", // Example using timestamp for unique ID
-                name: "Sample Topic: JavaScript Basics",
-                flashcards: [
-                    { id: "fc-1678886400001", question: "What is a closure?", answer: "A function that remembers its outer variables and can access them." },
-                    { id: "fc-1678886400002", question: "What are the primitive types in JavaScript?", answer: "string, number, bigint, boolean, undefined, symbol, and null." }
-                ]
-            },
-            {
-                id: "topic-1678886500000",
-                name: "Sample Topic: CSS Fundamentals",
-                flashcards: [
-                    { id: "fc-1678886500001", question: "What does CSS stand for?", answer: "Cascading Style Sheets." }
-                ]
-            }
-        ]
-    };
+    const LOCAL_STORAGE_KEY = 'flashcardAppData';
 
     const topicInput = document.getElementById('topic-input');
     const addTopicBtn = document.getElementById('add-topic-btn');
@@ -31,15 +12,23 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTopicId = null; // Variable to store the ID of the currently selected topic
 
     // Initialize Showdown Converter
-    let converter;
+    let converter; // Declare here
     try {
-        converter = new showdown.Converter();
+        converter = new showdown.Converter({ simpleLineBreaks: true });
         // Configure options if needed, e.g., converter.setOption('tables', true);
-        console.log("Showdown converter initialized successfully.");
+        console.log("Showdown converter initialized successfully with simpleLineBreaks.");
     } catch (e) {
-        console.error("Failed to initialize Showdown converter:", e);
-        // Fallback or error handling if Showdown is not available
-        converter = { makeHtml: (text) => text }; // Simple fallback to prevent errors
+        console.error("Showdown library not loaded or failed to initialize. Markdown will not be rendered.", e);
+        // Fallback to a dummy converter to prevent further errors if Showdown is critical
+        converter = {
+            makeHtml: function (text) {
+                // Basic escaping to prevent HTML injection if Showdown is missing
+                // Ensure text is a string before calling replace
+                const strText = String(text || '');
+                return strText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            }
+        };
+        alert("Markdown rendering is currently unavailable. Please check your internet connection or contact support.");
     }
 
     // Flashcard creation elements
@@ -184,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     flashcards: [] 
                 };
                 topics.push(newTopic);
-                saveDataToJSON(); // Call save function
+                saveDataToLocalStorage(); // Call save function
                 topicInput.value = ''; // Clear input field
                 renderTopics();
             } else {
@@ -195,31 +184,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Persistence Functions ---
-    function loadDataFromJSON() {
-        // Simulate loading: In a real app, this might fetch from a server or read a local file.
-        // For localStorage, it would be:
-        // const storedData = localStorage.getItem('flashcardAppData');
-        // topics = storedData ? JSON.parse(storedData).topics : [];
-        
-        // For our simulation with mockJsonData:
-        // Make a deep copy to avoid direct mutation of mockJsonData if it's intended to be a pristine source
-        topics = JSON.parse(JSON.stringify(mockJsonData.topics)); 
-        console.log('Data loaded from mock JSON:', topics);
+    // --- Persistence Functions (localStorage) ---
+    function saveDataToLocalStorage() {
+        try {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(topics));
+        } catch (e) {
+            console.error('Error saving data to localStorage:', e);
+            alert('Could not save data. Your browser storage might be full or access denied.');
+        }
     }
 
-    function saveDataToJSON() {
-        // Simulate saving: In a real app, this might send data to a server or write to a file.
-        // For localStorage:
-        // localStorage.setItem('flashcardAppData', JSON.stringify({ topics: topics }));
-        
-        // For simulation, we can update mockJsonData if we want the "source" to reflect changes
-        // mockJsonData.topics = JSON.parse(JSON.stringify(topics)); // Optional: update the mock source
-        console.log('Simulating save to JSON. Current data:', JSON.stringify({ topics: topics }, null, 2));
+    function loadDataFromLocalStorage() {
+        const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (storedData) {
+            try {
+                topics = JSON.parse(storedData);
+                if (!Array.isArray(topics)) { 
+                    console.warn('Stored data is not an array. Initializing with empty array.');
+                    topics = [];
+                }
+            } catch (e) {
+                console.error('Error parsing localStorage data:', e);
+                topics = []; 
+            }
+        } else {
+            topics = []; 
+            // Optionally, add default sample data for first-time users
+            // topics = [ { id: "default-topic-1", name: "Welcome!", flashcards: [{id: "default-fc-1", question:"How to use this app?", answer:"Create topics and add flashcards!"}]} ];
+        }
     }
-    // --- End Persistence Functions ---
-
-    // --- End Persistence Functions ---
+    // --- End Persistence Functions (localStorage) ---
 
     // Event listener for saving a new flashcard
     saveCardBtn.addEventListener('click', () => {
@@ -241,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 answer 
             };
             topics[currentTopicId].flashcards.push(newCard);
-            saveDataToJSON(); // Call save function
+            saveDataToLocalStorage(); // Call save function
             
             questionInput.value = '';
             answerInput.value = '';
@@ -255,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Initial Load and Render ---
-    loadDataFromJSON(); // Load initial data
+    loadDataFromLocalStorage(); // Load initial data
     renderTopics();     // Render topics, which will now use the loaded data
     
     // Initial visibility for flashcard form and display area
@@ -487,7 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
         topic.flashcards[cardIndex].question = newQuestion;
         topic.flashcards[cardIndex].answer = newAnswer;
 
-        saveDataToJSON(); // Persist changes (simulated)
+        saveDataToLocalStorage(); // Persist changes
 
         // Reset editing state
         const savedCardId = cardBeingEditedId; // Store before resetting
@@ -515,71 +509,71 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add event listener for save edit button
     if(saveEditBtn) saveEditBtn.addEventListener('click', saveEditFlashcard);
-    if(modalDeleteBtn) modalDeleteBtn.addEventListener('click', deleteFlashcard);
-});
-
-// --- Delete Flashcard Function ---
-function deleteFlashcard() {
-    if (currentModalTopicId === null || currentModalCardIndex === -1) {
-        alert('No card selected to delete.');
-        return;
-    }
-
-    const topic = topics.find(t => t.id === currentModalTopicId);
-    if (!topic) {
-        alert('Error: Topic not found.');
-        return;
-    }
     
-    const cardToDelete = topic.flashcards[currentModalCardIndex];
+    // --- Delete Flashcard Function ---
+    function deleteFlashcard() {
+        if (currentModalTopicId === null || currentModalCardIndex === -1) {
+            alert('No card selected to delete.');
+            return;
+        }
 
-    if (!confirm(`Are you sure you want to delete the flashcard: "${cardToDelete.question.substring(0, 50)}..."?`)) {
-        return; // User cancelled
-    }
+        const topic = topics.find(t => t.id === currentModalTopicId);
+        if (!topic) {
+            alert('Error: Topic not found.');
+            return;
+        }
+        
+        const cardToDelete = topic.flashcards[currentModalCardIndex];
 
-    // Remove the card from the array
-    topic.flashcards.splice(currentModalCardIndex, 1);
-    saveDataToJSON(); // Persist changes (simulated)
+        if (!confirm(`Are you sure you want to delete the flashcard: "${cardToDelete.question.substring(0, 50)}..."?`)) {
+            return; // User cancelled
+        }
 
-    alert('Flashcard deleted.');
+        // Remove the card from the array
+        topic.flashcards.splice(currentModalCardIndex, 1);
+    saveDataToLocalStorage(); // Persist changes
 
-    const topicIdxInTopicsArray = topics.findIndex(t => t.id === currentModalTopicId);
+        alert('Flashcard deleted.');
 
-    closeModal(); // Close the modal first
+        const topicIdxInTopicsArray = topics.findIndex(t => t.id === currentModalTopicId);
 
-    // Refresh the grid view for the current topic
-    renderTopics(); // Re-render topics in case a topic becomes empty or for future topic deletion logic
+        closeModal(); // Close the modal first
 
-    // Try to re-select the same topic in the grid, if it still exists
-    if (topicIdxInTopicsArray !== -1 && topics[topicIdxInTopicsArray]) {
-        // The 'currentTopicId' global variable holds the *index* of the topic selected in the main view.
-        // We need to find the DOM element for the topic that was being viewed in the modal.
-        const topicLiToReselect = document.querySelector(`#topic-list-container li[data-topic-id='${topicIdxInTopicsArray}']`);
+        // Refresh the grid view for the current topic
+        renderTopics(); // Re-render topics in case a topic becomes empty or for future topic deletion logic
 
-        if (topicLiToReselect) {
-            // If the currently selected topic in the grid (currentTopicId / index)
-            // is the same as the one from which the card was deleted, click it to refresh its flashcards.
-            // Otherwise, if a different topic is selected in the grid, its view is already correct.
-            if (currentTopicId === topicIdxInTopicsArray) {
-                 topicLiToReselect.click(); 
+        // Try to re-select the same topic in the grid, if it still exists
+        if (topicIdxInTopicsArray !== -1 && topics[topicIdxInTopicsArray]) {
+            // The 'currentTopicId' global variable holds the *index* of the topic selected in the main view.
+            // We need to find the DOM element for the topic that was being viewed in the modal.
+            const topicLiToReselect = document.querySelector(`#topic-list-container li[data-topic-id='${topicIdxInTopicsArray}']`);
+
+            if (topicLiToReselect) {
+                // If the currently selected topic in the grid (currentTopicId / index)
+                // is the same as the one from which the card was deleted, click it to refresh its flashcards.
+                // Otherwise, if a different topic is selected in the grid, its view is already correct.
+                if (currentTopicId === topicIdxInTopicsArray) {
+                     topicLiToReselect.click(); 
+                } else {
+                    // If the deleted card's topic is NOT the one selected in the grid,
+                    // we still need to ensure the grid view of the deleted card's topic is updated
+                    // if the user later clicks on it. renderFlashcards for the *currently selected*
+                    // grid topic is implicitly handled if its LI element is clicked.
+                    // If no topic is selected, or a different one, then the main grid view is fine.
+                    // If the deleted card was from the currently selected topic in grid, its renderFlashcards will be triggered.
+                    // This logic seems fine.
+                }
             } else {
-                // If the deleted card's topic is NOT the one selected in the grid,
-                // we still need to ensure the grid view of the deleted card's topic is updated
-                // if the user later clicks on it. renderFlashcards for the *currently selected*
-                // grid topic is implicitly handled if its LI element is clicked.
-                // If no topic is selected, or a different one, then the main grid view is fine.
-                // If the deleted card was from the currently selected topic in grid, its renderFlashcards will be triggered.
-                // This logic seems fine.
+                // The topic LI element is no longer found (e.g., if topics could be deleted)
+                // or if the topic list was drastically changed by renderTopics.
+                // Reset the flashcard display.
+                renderFlashcards(null);
             }
         } else {
-            // The topic LI element is no longer found (e.g., if topics could be deleted)
-            // or if the topic list was drastically changed by renderTopics.
-            // Reset the flashcard display.
+            // Topic itself was deleted or index is now out of bounds.
             renderFlashcards(null);
         }
-    } else {
-        // Topic itself was deleted or index is now out of bounds.
-        renderFlashcards(null);
     }
-}
-// --- End Delete Flashcard Function ---
+    // --- End Delete Flashcard Function ---
+    if(modalDeleteBtn) modalDeleteBtn.addEventListener('click', deleteFlashcard);
+});
