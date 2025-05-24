@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Cards</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Flash Cards</h1>
+    </header>
+
+    <main>
+        <section id="topic-management">
+            <h2>Topics</h2>
+            <div class="topic-creation-controls">
+                <input type="text" id="topic-input" placeholder="Enter topic name">
+                <button id="add-topic-btn">Add Topic</button>
+            </div>
+            <div id="topic-list-container">
+                <!-- Topics will be listed here -->
+            </div>
+            <!-- Topic creation and list will go here -->
+        </section>
+
+        <section id="flashcard-area">
+            <h2>Flashcards</h2>
+            <div id="flashcard-creation-form">
+                <h3>Create New Flashcard</h3>
+                <div class="form-group">
+                    <label for="question-input">Question:</label>
+                    <textarea id="question-input" placeholder="Enter the question (front of card)"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="answer-input">Answer:</label>
+                    <textarea id="answer-input" placeholder="Enter the answer (back of card)"></textarea>
+                </div>
+                <button id="save-card-btn">Save Card</button>
+            </div>
+            <div id="flashcard-display-container">
+                <!-- Flashcards will be displayed here -->
+            </div>
+            <!-- Flashcard creation and display will go here -->
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Flash Cards</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
