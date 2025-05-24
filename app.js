@@ -1,12 +1,46 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Simulating content that would be in db.json
+    let mockJsonData = {
+        topics: [
+            {
+                id: "topic-1678886400000", // Example using timestamp for unique ID
+                name: "Sample Topic: JavaScript Basics",
+                flashcards: [
+                    { id: "fc-1678886400001", question: "What is a closure?", answer: "A function that remembers its outer variables and can access them." },
+                    { id: "fc-1678886400002", question: "What are the primitive types in JavaScript?", answer: "string, number, bigint, boolean, undefined, symbol, and null." }
+                ]
+            },
+            {
+                id: "topic-1678886500000",
+                name: "Sample Topic: CSS Fundamentals",
+                flashcards: [
+                    { id: "fc-1678886500001", question: "What does CSS stand for?", answer: "Cascading Style Sheets." }
+                ]
+            }
+        ]
+    };
+
     const topicInput = document.getElementById('topic-input');
     const addTopicBtn = document.getElementById('add-topic-btn');
     const topicListContainer = document.getElementById('topic-list-container');
 
     // For now, topics will be stored in an in-memory array.
     // We can integrate localStorage later for persistence.
-    let topics = [];
+    // let topics = []; // This will be initialized by loadDataFromJSON
+    let topics = []; 
     let currentTopicId = null; // Variable to store the ID of the currently selected topic
+
+    // Initialize Showdown Converter
+    let converter;
+    try {
+        converter = new showdown.Converter();
+        // Configure options if needed, e.g., converter.setOption('tables', true);
+        console.log("Showdown converter initialized successfully.");
+    } catch (e) {
+        console.error("Failed to initialize Showdown converter:", e);
+        // Fallback or error handling if Showdown is not available
+        converter = { makeHtml: (text) => text }; // Simple fallback to prevent errors
+    }
 
     // Flashcard creation elements
     const questionInput = document.getElementById('question-input');
@@ -14,6 +48,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveCardBtn = document.getElementById('save-card-btn');
     const flashcardCreationForm = document.getElementById('flashcard-creation-form'); 
     const flashcardDisplayContainer = document.getElementById('flashcard-display-container');
+
+    // Modal elements and state
+    const flashcardModal = document.getElementById('flashcard-modal');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+    const modalFlashcardContainer = document.getElementById('modal-flashcard-container');
+    const modalPrevBtn = document.getElementById('modal-prev-btn');
+    const modalNextBtn = document.getElementById('modal-next-btn');
+    
+    let currentModalTopicId = null; // Will store the actual ID string of the topic in modal
+    let currentModalCardIndex = -1; // Will store the index of the card within its topic's flashcards array
 
     // Function to render topics to the UI
     function renderTopics() {
@@ -91,18 +135,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const cardFront = document.createElement('div');
             cardFront.className = 'flashcard-front';
-            cardFront.textContent = cardData.question;
+            // cardFront.textContent = cardData.question; // Old way
+            cardFront.innerHTML = converter.makeHtml(cardData.question || ''); // Use Showdown, handle undefined
 
             const cardBack = document.createElement('div');
             cardBack.className = 'flashcard-back';
-            cardBack.textContent = cardData.answer;
+            // cardBack.textContent = cardData.answer; // Old way
+            cardBack.innerHTML = converter.makeHtml(cardData.answer || ''); // Use Showdown, handle undefined
 
             cardInner.appendChild(cardFront);
             cardInner.appendChild(cardBack);
             cardDiv.appendChild(cardInner);
 
-            cardDiv.addEventListener('click', () => {
-                cardDiv.classList.toggle('flipped');
+            // cardDiv.addEventListener('click', () => { // Old: flip grid card
+            //     cardDiv.classList.toggle('flipped');
+            // });
+            cardDiv.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                // topicId is the index of the topic, cardData.id is the actual ID of the card
+                openModal(topics[topicId].id, cardData.id); 
             });
 
             flashcardDisplayContainer.appendChild(cardDiv);
@@ -115,7 +166,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (topicName) {
             // Check if topic already exists (case-insensitive)
             if (!topics.some(topic => topic.name.toLowerCase() === topicName.toLowerCase())) {
-                topics.push({ name: topicName, flashcards: [] });
+                const newTopic = { 
+                    id: `topic-${Date.now()}`, // Add ID
+                    name: topicName, 
+                    flashcards: [] 
+                };
+                topics.push(newTopic);
+                saveDataToJSON(); // Call save function
                 topicInput.value = ''; // Clear input field
                 renderTopics();
             } else {
@@ -126,8 +183,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initial render of topics (which will be empty at first)
-    renderTopics();
+    // --- Persistence Functions ---
+    function loadDataFromJSON() {
+        // Simulate loading: In a real app, this might fetch from a server or read a local file.
+        // For localStorage, it would be:
+        // const storedData = localStorage.getItem('flashcardAppData');
+        // topics = storedData ? JSON.parse(storedData).topics : [];
+        
+        // For our simulation with mockJsonData:
+        // Make a deep copy to avoid direct mutation of mockJsonData if it's intended to be a pristine source
+        topics = JSON.parse(JSON.stringify(mockJsonData.topics)); 
+        console.log('Data loaded from mock JSON:', topics);
+    }
+
+    function saveDataToJSON() {
+        // Simulate saving: In a real app, this might send data to a server or write to a file.
+        // For localStorage:
+        // localStorage.setItem('flashcardAppData', JSON.stringify({ topics: topics }));
+        
+        // For simulation, we can update mockJsonData if we want the "source" to reflect changes
+        // mockJsonData.topics = JSON.parse(JSON.stringify(topics)); // Optional: update the mock source
+        console.log('Simulating save to JSON. Current data:', JSON.stringify({ topics: topics }, null, 2));
+    }
+    // --- End Persistence Functions ---
+
+    // --- End Persistence Functions ---
 
     // Event listener for saving a new flashcard
     saveCardBtn.addEventListener('click', () => {
@@ -143,7 +223,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!topics[currentTopicId].flashcards) {
                 topics[currentTopicId].flashcards = []; // Initialize if it doesn't exist
             }
-            topics[currentTopicId].flashcards.push({ question, answer });
+            const newCard = { 
+                id: `fc-${Date.now()}`, // Add ID
+                question, 
+                answer 
+            };
+            topics[currentTopicId].flashcards.push(newCard);
+            saveDataToJSON(); // Call save function
             
             questionInput.value = '';
             answerInput.value = '';
@@ -156,9 +242,146 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initially hide flashcard creation form and clear flashcard display
-    if (flashcardCreationForm) {
-        flashcardCreationForm.style.display = 'none'; // Hide until a topic is selected
+    // --- Initial Load and Render ---
+    loadDataFromJSON(); // Load initial data
+    renderTopics();     // Render topics, which will now use the loaded data
+    
+    // Initial visibility for flashcard form and display area
+    // currentTopicId will be null initially since no topic is selected by default after load
+    if (currentTopicId === null && flashcardCreationForm) {
+        flashcardCreationForm.style.display = 'none';
     }
-    renderFlashcards(null); // Render empty state for flashcards initially
+    renderFlashcards(currentTopicId); // Render flashcards for initially selected topic (null in this case)
+    // --- End Initial Load and Render ---
+
+    // --- Modal Functions ---
+    function updateModalNavButtons() {
+        if (!currentModalTopicId) {
+            if(modalPrevBtn) modalPrevBtn.disabled = true;
+            if(modalNextBtn) modalNextBtn.disabled = true;
+            return;
+        }
+
+        const topic = topics.find(t => t.id === currentModalTopicId);
+        if (!topic || !topic.flashcards) {
+            if(modalPrevBtn) modalPrevBtn.disabled = true;
+            if(modalNextBtn) modalNextBtn.disabled = true;
+            return;
+        }
+
+        if(modalPrevBtn) modalPrevBtn.disabled = (currentModalCardIndex <= 0);
+        if(modalNextBtn) modalNextBtn.disabled = (currentModalCardIndex >= topic.flashcards.length - 1);
+    }
+
+    function displayCardInModal(topicActualId, cardActualId) {
+        const topic = topics.find(t => t.id === topicActualId);
+        if (!topic || !topic.flashcards) {
+            console.error('Topic or flashcards not found for modal display. Topic ID:', topicActualId);
+            closeModal(); // Close modal if data is inconsistent
+            return;
+        }
+        
+        const cardData = topic.flashcards.find(fc => fc.id === cardActualId);
+        if (!cardData) {
+            console.error('Card not found for modal display. Card ID:', cardActualId, 'in Topic:', topic.name);
+            closeModal(); // Close modal if card not found
+            return;
+        }
+
+        currentModalTopicId = topicActualId; // Update global state
+        currentModalCardIndex = topic.flashcards.findIndex(fc => fc.id === cardActualId);
+
+        modalFlashcardContainer.innerHTML = ''; // Clear previous card
+
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'flashcard'; 
+        cardDiv.id = 'modal-flashcard'; 
+
+        const cardInner = document.createElement('div');
+        cardInner.className = 'flashcard-inner';
+
+        const cardFront = document.createElement('div');
+        cardFront.className = 'flashcard-front';
+        cardFront.innerHTML = converter.makeHtml(cardData.question || ''); 
+
+        const cardBack = document.createElement('div');
+        cardBack.className = 'flashcard-back';
+        cardBack.innerHTML = converter.makeHtml(cardData.answer || '');
+
+        cardInner.appendChild(cardFront);
+        cardInner.appendChild(cardBack);
+        cardDiv.appendChild(cardInner);
+
+        cardDiv.addEventListener('click', () => {
+            cardDiv.classList.toggle('flipped');
+        });
+
+        modalFlashcardContainer.appendChild(cardDiv);
+        updateModalNavButtons();
+    }
+
+    function openModal(topicActualId, cardActualId) {
+        displayCardInModal(topicActualId, cardActualId); // Populate content first
+        if (currentModalTopicId) { // Only show modal if card display was successful
+            flashcardModal.classList.add('visible');
+            document.body.style.overflow = 'hidden'; 
+        }
+    }
+
+    function closeModal() {
+        flashcardModal.classList.remove('visible');
+        setTimeout(() => {
+            modalFlashcardContainer.innerHTML = ''; 
+        }, 300); 
+        document.body.style.overflow = ''; 
+        currentModalTopicId = null; 
+        currentModalCardIndex = -1;
+        updateModalNavButtons(); // Reset/disable nav buttons
+    }
+
+    function navigateToNextCard() {
+        if (!currentModalTopicId) return;
+        const topic = topics.find(t => t.id === currentModalTopicId);
+        if (topic && topic.flashcards && currentModalCardIndex < topic.flashcards.length - 1) {
+            currentModalCardIndex++;
+            const nextCardId = topic.flashcards[currentModalCardIndex].id;
+            displayCardInModal(currentModalTopicId, nextCardId);
+        }
+    }
+
+    function navigateToPrevCard() {
+        if (!currentModalTopicId) return;
+        const topic = topics.find(t => t.id === currentModalTopicId);
+        if (topic && topic.flashcards && currentModalCardIndex > 0) {
+            currentModalCardIndex--;
+            const prevCardId = topic.flashcards[currentModalCardIndex].id;
+            displayCardInModal(currentModalTopicId, prevCardId);
+        }
+    }
+
+    // Modal Event Listeners
+    if(modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
+    if(modalPrevBtn) modalPrevBtn.addEventListener('click', navigateToPrevCard);
+    if(modalNextBtn) modalNextBtn.addEventListener('click', navigateToNextCard);
+
+    if(flashcardModal) {
+        flashcardModal.addEventListener('click', (event) => {
+            if (event.target === flashcardModal) {
+                closeModal();
+            }
+        });
+    }
+
+    window.addEventListener('keydown', (event) => {
+        if (flashcardModal && flashcardModal.classList.contains('visible')) { 
+            if (event.key === 'ArrowRight') {
+                navigateToNextCard();
+            } else if (event.key === 'ArrowLeft') {
+                navigateToPrevCard();
+            } else if (event.key === 'Escape') {
+                closeModal();
+            }
+        }
+    });
+    // --- End Modal Functions ---
 });
