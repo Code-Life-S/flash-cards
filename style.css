@@ -1,0 +1,741 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    background-color: #121212; /* Dark background */
+    color: #e0e0e0; /* Light text */
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    background-color: #1f1f1f; /* Slightly lighter dark shade for header */
+    padding: 1rem 0;
+    text-align: center;
+    border-bottom: 1px solid #333;
+}
+
+header h1 {
+    color: #ffffff;
+}
+
+main {
+    flex-grow: 1;
+    padding: 1rem;
+    width: 90%;
+    max-width: 1200px;
+    margin: 1rem auto; /* Center main content */
+}
+
+#topic-management, #flashcard-area {
+    background-color: #1e1e1e; /* Darker card-like background for sections */
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+#topic-management h2, 
+#flashcard-area h2,
+#flashcard-creation-form h3 { /* Apply to h3 in form as well */
+    color: #ffffff; /* Ensure color is maintained */
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem; /* Suggested increase */
+    border-bottom: 1px solid #383838; /* Suggested lighter border */
+}
+
+footer {
+    text-align: center;
+    padding: 1rem 0;
+    background-color: #1f1f1f;
+    border-top: 1px solid #333;
+    font-size: 0.9rem;
+}
+
+/* Basic link styling */
+a {
+    color: #bb86fc; /* A common accent color for dark themes */
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Topic Creation Controls */
+.topic-creation-controls {
+    display: flex;
+    gap: 0.5rem; /* Space between input and button */
+    margin-bottom: 1.5rem;
+}
+
+#topic-input {
+    flex-grow: 1;
+    padding: 0.75rem;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    font-size: 1rem;
+}
+
+#topic-input::placeholder {
+    color: #888;
+}
+
+/* Input field focus */
+#topic-input:focus,
+#question-input:focus,
+#answer-input:focus {
+    border-color: #bb86fc; /* Accent color border on focus */
+    box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.25); /* Subtle glow effect */
+    outline: none; /* Remove default browser outline if custom shadow is applied */
+}
+
+/* General Button Transitions */
+button {
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+button:active { /* Subtle press effect */
+    transform: translateY(1px);
+}
+
+#add-topic-btn {
+    padding: 0.75rem 1.5rem;
+    background-color: #bb86fc; /* Accent color */
+    color: #121212; /* Dark text on light button */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    /* transition: background-color 0.3s ease; */ /* Now handled by general button rule */
+}
+
+#add-topic-btn:hover {
+    background-color: #a06cd5; /* Darker shade on hover */
+}
+
+/* Topic List Container (for later use) */
+#topic-list-container {
+    margin-top: 1rem;
+}
+
+.danger-btn {
+    background-color: #cf6679; /* Material Design dark theme error/danger color */
+    color: #121212;
+}
+.danger-btn:hover {
+    background-color: #b00020; /* Darker shade on hover */
+}
+
+/* Flashcard Creation Form */
+#flashcard-creation-form {
+    background-color: #252525; /* Slightly different background for emphasis */
+    padding: 1.5rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+/* Specific styles for #flashcard-creation-form h3 if they differ from the combined rule */
+#flashcard-creation-form h3 {
+    text-align: center; /* Retain original text-align, other properties now covered by the combined rule above */
+    /* color, margin-bottom, padding-bottom, border-bottom are now part of the combined rule */
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    color: #c0c0c0;
+    margin-bottom: 0.5rem;
+}
+
+#question-input,
+#answer-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    font-size: 1rem;
+    min-height: 80px; /* Provide some default height */
+    resize: vertical; /* Allow vertical resizing */
+}
+
+#question-input::placeholder,
+#answer-input::placeholder {
+    color: #888;
+}
+
+#save-card-btn {
+    display: block; /* Make button take full width of its container if desired, or use margin auto to center */
+    width: 100%; /* Or set a fixed width and use margin: 0 auto; */
+    padding: 0.75rem 1.5rem;
+    background-color: #03dac6; /* A different accent color for save */
+    color: #121212;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    /* transition: background-color 0.3s ease; */ /* Now handled by general button rule */
+    margin-top: 1rem;
+}
+
+#save-card-btn:hover {
+    background-color: #01bfaa;
+}
+
+/* Flashcard Display Container (for later use) */
+#flashcard-display-container {
+    margin-top: 1rem;
+}
+
+/* Topic List */
+.topic-list {
+    list-style-type: none; /* Removes default bullet points */
+    padding: 0;
+}
+
+/* Styling for individual topic list items will be handled by JS for now,
+   but can be moved here for better separation of concerns later.
+   Example of how it could be structured if JS only adds a class: */
+
+.topic-list-item { /* Assuming JS adds this class to generated <li> */
+    background-color: #2a2a2a;
+    padding: 10px 15px; /* Adjusted padding slightly from 10px to 10px 15px */
+    margin: 8px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid #333;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease; /* Added transform for active state */
+}
+
+.topic-list-item:hover {
+    background-color: #333333;
+    border-color: #555; /* Changed border color on hover as per suggestion */
+}
+
+.topic-list-item.selected { /* JS would add/remove this class */
+    font-weight: bold;
+    border-color: #bb86fc !important; /* Ensure this overrides default if JS inline styles are also present (though we'll remove inline styles) */
+    background-color: #303030;
+}
+
+.topic-list-item:active { /* Added active state for topic list items */
+    transform: translateY(1px);
+}
+
+#topic-list-container p { /* Styling for the 'No topics' message */
+    color: #888;
+    font-style: italic;
+}
+
+/* Flashcard Display Area */
+#flashcard-display-container {
+    display: flex; /* Arrange cards in a row, wrapping if necessary */
+    flex-wrap: wrap;
+    gap: 1rem; /* Spacing between cards */
+    justify-content: center; /* Center cards if they don't fill the row */
+    padding-top: 1rem; /* Add some space above the cards */
+    min-height: 220px; /* Ensure container has height even when empty for message visibility */
+}
+
+.flashcard {
+    width: 300px; /* Fixed width for each card */
+    height: 200px; /* Fixed height for each card */
+    perspective: 1000px; /* Needed for 3D flip effect */
+    cursor: pointer;
+    background-color: transparent; /* Container itself is transparent */
+}
+
+.flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.3); /* Shadow for the card */
+    border-radius: 8px;
+}
+
+.flashcard.flipped .flashcard-inner {
+    transform: rotateY(180deg);
+}
+
+.flashcard-front,
+.flashcard-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden; /* Safari */
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+}
+
+.flashcard-front {
+    background-color: #bb86fc; /* Accent color for front */
+    color: #121212; /* Dark text */
+}
+
+.flashcard-back {
+    background-color: #03dac6; /* Different accent for back */
+    color: #121212; /* Dark text */
+    transform: rotateY(180deg);
+}
+
+/* No flashcards message */
+#flashcard-display-container .no-flashcards-message {
+    color: #888;
+    font-style: italic;
+    width: 100%; /* Take full width to center text */
+    text-align: center;
+}
+
+@media (max-width: 768px) { /* Tablet and smaller */
+    main {
+        width: 95%;
+        padding: 0.5rem;
+    }
+
+    header h1 {
+        font-size: 1.8rem;
+    }
+
+    #topic-management h2,
+    #flashcard-area h2,
+    #flashcard-creation-form h3 {
+        font-size: 1.5rem;
+    }
+
+    .topic-creation-controls {
+        flex-direction: column; /* Stack input and button */
+        gap: 0.75rem;
+    }
+
+    #topic-input,
+    #add-topic-btn {
+        width: 100%; /* Make them full width when stacked */
+    }
+
+    #add-topic-btn {
+        padding: 0.85rem 1.5rem; /* Adjust padding if needed */
+    }
+    
+    #save-card-btn {
+        padding: 0.85rem 1.5rem; /* Adjust padding if needed */
+    }
+
+    .flashcard {
+        width: 80%; /* Adjust width for single column, centered by flex container */
+        max-width: 320px; /* Max width to prevent very wide cards on slightly larger small screens */
+        height: 220px; /* Potentially adjust height */
+        font-size: 1rem; /* Adjust font size inside cards if needed */
+    }
+
+    .flashcard-front,
+    .flashcard-back {
+        font-size: 1rem; /* Ensure font size in cards is readable */
+    }
+}
+
+/* Temporary Diagnostic Styles - Remove After Debugging */
+#modal-flashcard-container {
+    border: 2px dashed lime !important; /* Added !important to ensure visibility */
+    padding: 5px !important; /* To see the container bounds clearly */
+    background-color: rgba(0, 255, 0, 0.1) !important; /* Slight background tint */
+}
+#modal-flashcard-container .flashcard {
+    border: 2px solid red !important;
+    min-height: 50px !important; /* Ensure it's visible even if height calculation is off */
+    background-color: rgba(255, 0, 0, 0.1) !important;
+}
+#modal-flashcard-container .flashcard-inner {
+    border: 2px solid blue !important;
+    min-height: 40px !important;
+    background-color: rgba(0, 0, 255, 0.1) !important;
+}
+#modal-flashcard-container .flashcard-front {
+    border: 2px solid yellow !important;
+    min-height: 30px !important;
+    position: relative !important; /* Ensure z-index works if needed for visibility */
+    z-index: 1 !important; /* Ensure it's above back if transform is not perfect */
+    background-color: rgba(255, 255, 0, 0.1) !important;
+}
+#modal-flashcard-container .flashcard-back {
+    border: 2px solid orange !important;
+    min-height: 30px !important;
+    position: relative !important; /* Ensure z-index works */
+    /* z-index: 0; */ /* Backface visibility should handle this */
+    background-color: rgba(255, 165, 0, 0.1) !important;
+}
+/* End of Temporary Diagnostic Styles */
+
+/* Modal Edit Form Styles */
+.modal-card-actions {
+    margin-top: 1rem;
+    margin-bottom: 1rem; /* Add space before nav buttons if edit button is here */
+    text-align: center; /* Or right, depending on desired placement */
+}
+
+.action-btn { /* General styling for action buttons like Edit, Save Edit, Cancel */
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease; /* Ensure this is covered by general button if preferred */
+    margin: 0 0.5rem; /* Space out buttons if they are next to each other */
+}
+
+#modal-edit-btn, #save-edit-btn {
+    background-color: #03dac6; /* Teal accent */
+    color: #121212;
+}
+#modal-edit-btn:hover, #save-edit-btn:hover {
+    background-color: #01bfaa;
+}
+
+.secondary-btn { /* For cancel button */
+    background-color: #555;
+    color: #e0e0e0;
+}
+.secondary-btn:hover {
+    background-color: #666;
+}
+
+#modal-edit-form-view h3 {
+    color: #e0e0e0;
+    margin-bottom: 1.5rem; /* Slightly more space */
+    text-align: center;
+}
+
+#edit-question-input,
+#edit-answer-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    font-size: 1rem;
+    min-height: 100px; /* Adjust as needed */
+    resize: vertical;
+    margin-bottom: 1rem; /* From .form-group if that class is reused */
+    line-height: 1.5; /* Improves readability for multi-line text */
+}
+/* Focus styles for edit textareas */
+#edit-question-input:focus,
+#edit-answer-input:focus {
+    border-color: #bb86fc;
+    box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.25);
+    outline: none;
+}
+
+.edit-actions {
+    display: flex;
+    justify-content: center; /* Center Save/Cancel buttons */
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+@media (max-width: 480px) { /* Mobile specific */
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    #topic-management h2,
+    #flashcard-area h2,
+    #flashcard-creation-form h3 {
+        font-size: 1.3rem;
+    }
+    
+    body {
+        font-size: 0.95rem; /* Slightly reduce base font for very small screens */
+    }
+
+    #question-input,
+    #answer-input {
+        min-height: 70px;
+        font-size: 0.95rem;
+    }
+
+    .flashcard {
+        width: 90%; /* More width for very small screens */
+        height: 200px; /* Adjust height */
+    }
+}
+
+/* Example: Ensure action buttons in modal stack nicely on small screens if they are too wide */
+@media (max-width: 400px) { /* Or a suitable breakpoint */
+    .modal-card-actions {
+        display: flex;
+        flex-direction: column; /* Stack Edit/Delete buttons */
+        gap: 0.75rem; /* Space when stacked */
+        align-items: center; /* Center them when stacked */
+    }
+
+    .modal-card-actions .action-btn {
+        width: 80%; /* Make stacked buttons take up more width */
+        margin: 0; /* Remove horizontal margins when stacked */
+    }
+
+    .edit-actions {
+        flex-direction: column; /* Stack Save/Cancel buttons */
+        gap: 0.75rem;
+        align-items: center;
+    }
+    .edit-actions .action-btn {
+        width: 80%;
+        margin: 0;
+    }
+}
+
+/* Full-Screen Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none; /* Hidden by default and removed from layout */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease; /* Transition visibility and opacity */
+}
+
+.modal-overlay.visible {
+    display: flex; /* Make it visible and use flex for centering */
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background-color: #1e1e1e; /* Dark background for modal content */
+    /* padding: 2rem; */ /* Old padding */
+    padding: 30px 40px; /* Increased padding for more internal space */
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    position: relative; /* For positioning close button */
+    width: 90vw;    /* New width */
+    height: 90vh;   /* New height */
+    /* max-width: 600px; */ /* REMOVED max-width */
+    text-align: center;
+    transform: scale(0.9); /* Initial state for transition */
+    transition: transform 0.3s ease;
+    display: flex; /* Added to help manage internal layout if needed */
+    flex-direction: column; /* Stack children vertically */
+}
+
+.modal-overlay.visible .modal-content {
+    transform: scale(1); /* Animate to full size */
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0.5rem;
+}
+
+.modal-close-btn:hover {
+    color: #fff;
+}
+
+#modal-flashcard-view {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Allows this view to take available space in modal-content */
+    overflow: hidden; /* If content (like card actions) might overflow this view */
+    min-height: 0; /* Important for nested flex-grow in some browsers */
+}
+
+#modal-flashcard-container {
+    /* margin-bottom: 1.5rem; */ /* Moved to padding-top on .modal-card-actions */
+    flex-grow: 1; /* Takes space in #modal-flashcard-view, leaving room for actions */
+    display: flex;
+    justify-content: center;
+    align-items: center; /* This will center the .flashcard if it's smaller */
+    overflow: hidden; /* Good */
+    min-height: 0; /* Important for nested flex-grow */
+}
+
+ /* Ensure flashcard in modal uses available space or a defined modal size */
+ #modal-flashcard-container .flashcard {
+    width: 100%; /* Maximize width within container */
+    height: 100%; /* Maximize height within container */
+    display: flex;
+    flex-direction: column;
+    /* The existing border and box-shadow for flashcard should provide visual separation */
+}
+
+#modal-flashcard-container .flashcard-inner {
+    width: 100%; /* Ensure it takes full width of .flashcard */
+    height: 100%; /* Ensure it takes full height of .flashcard */
+    flex-grow: 1; /* This is better if parent is flex column */
+    display: flex; /* Added to make its children (front/back) also use flex effectively */
+    flex-direction: column; /* Stack front/back, though only one is visible */
+    /* transform-style: preserve-3d; transition: transform 0.6s; (already there from general .flashcard-inner) */
+}
+
+/* If markdown content makes card height too variable, consider min-height or overflow */
+#modal-flashcard-container .flashcard-front,
+#modal-flashcard-container .flashcard-back {
+    width: 100%; /* Ensure they take full width of parent */
+    /* height: 100%; */ /* Removed to allow flex-grow to manage height */
+    font-size: 1.2rem; /* Slightly larger font for modal view */
+    overflow-y: auto; /* This is key for scrolling content */
+    flex-grow: 1; /* Ensure front/back fill the inner card area */
+    /* padding, backface-visibility etc. (already there from general .flashcard-front/back) */
+}
+
+
+.modal-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.modal-nav-btn {
+    background-color: #bb86fc;
+    color: #121212;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.modal-nav-btn:hover {
+    background-color: #a06cd5;
+}
+
+.modal-nav-btn:disabled { /* Style for disabled nav buttons */
+    background-color: #555;
+    color: #888;
+    cursor: not-allowed;
+}
+
+/* Markdown Content Styling (inside .flashcard-front, .flashcard-back) */
+.flashcard-front h1, .flashcard-back h1,
+.flashcard-front h2, .flashcard-back h2,
+.flashcard-front h3, .flashcard-back h3 {
+    margin-top: 0.5em;
+    margin-bottom: 0.3em;
+    color: #e0e0e0; /* Ensure headings are light on dark card background */
+}
+.flashcard-front h1, .flashcard-back h1 { font-size: 1.5em; }
+.flashcard-front h2, .flashcard-back h2 { font-size: 1.3em; }
+.flashcard-front h3, .flashcard-back h3 { font-size: 1.1em; }
+
+.flashcard-front p, .flashcard-back p {
+    margin-bottom: 0.5em;
+}
+
+.flashcard-front ul, .flashcard-back ul,
+.flashcard-front ol, .flashcard-back ol {
+    margin-left: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+.flashcard-front li, .flashcard-back li {
+    margin-bottom: 0.2em;
+}
+
+.flashcard-front strong, .flashcard-back strong {
+    font-weight: bold;
+}
+
+.flashcard-front em, .flashcard-back em {
+    font-style: italic;
+}
+
+.flashcard-front code, .flashcard-back code {
+    background-color: rgba(0,0,0,0.2); /* Darker code background */
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+}
+
+.flashcard-front pre, .flashcard-back pre {
+    background-color: rgba(0,0,0,0.3);
+    padding: 0.5em;
+    border-radius: 4px;
+    overflow-x: auto; /* Allow horizontal scroll for long code blocks */
+    margin-bottom: 0.5em;
+}
+
+.flashcard-front pre code, .flashcard-back pre code {
+    background-color: transparent; /* Code inside pre shouldn't have double background */
+    padding: 0;
+    border-radius: 0;
+    font-size: 0.9em; /* Ensure consistent font size */
+}
+
+.flashcard-front hr, .flashcard-back hr {
+    border: 0;
+    border-top: 1px solid #444; /* Dark theme horizontal rule */
+    margin: 1em 0;
+}
+
+.flashcard-front blockquote, .flashcard-back blockquote {
+    border-left: 3px solid #555; /* Dark theme blockquote */
+    padding-left: 1em;
+    margin-left: 0;
+    font-style: italic;
+    color: #ccc;
+}
+
+@media (max-width: 480px) {
+    /* ... other 480px rules ... */
+
+    .modal-content {
+        padding: 1rem; /* Reduce padding on very small screens */
+        width: 95%; /* Ensure it's not too wide */
+    }
+    #modal-flashcard-container .flashcard {
+        height: 250px; /* Maybe adjust height for smaller screens */
+    }
+    .modal-nav-btn {
+        font-size: 0.9rem;
+        padding: 0.6rem 1rem;
+    }
+    .modal-close-btn {
+        font-size: 1.8rem;
+        top: 5px;
+        right: 10px;
+    }
+}

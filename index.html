@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Cards</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Flash Cards</h1>
+    </header>
+
+    <main>
+        <section id="topic-management">
+            <h2>Topics</h2>
+            <div class="topic-creation-controls">
+                <input type="text" id="topic-input" placeholder="Enter topic name">
+                <button id="add-topic-btn">Add Topic</button>
+            </div>
+            <div id="topic-list-container">
+                <!-- Topics will be listed here -->
+            </div>
+            <!-- Topic creation and list will go here -->
+        </section>
+
+        <section id="flashcard-area">
+            <h2>Flashcards</h2>
+            <div id="flashcard-creation-form">
+                <h3>Create New Flashcard</h3>
+                <div class="form-group">
+                    <label for="question-input">Question:</label>
+                    <textarea id="question-input" placeholder="Enter the question (front of card)"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="answer-input">Answer:</label>
+                    <textarea id="answer-input" placeholder="Enter the answer (back of card)"></textarea>
+                </div>
+                <button id="save-card-btn">Save Card</button>
+            </div>
+            <div id="flashcard-display-container">
+                <!-- Flashcards will be displayed here -->
+            </div>
+            <!-- Flashcard creation and display will go here -->
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Flash Cards</p>
+    </footer>
+
+    <!-- Full-Screen Flashcard Modal -->
+    <div id="flashcard-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="modal-close-btn" class="modal-close-btn">&times;</button>
+
+            <!-- View for displaying the flashcard -->
+            <div id="modal-flashcard-view">
+                <div id="modal-flashcard-container">
+                    <!-- The flashcard structure will be injected here by JavaScript -->
+                </div>
+                <div class="modal-card-actions"> 
+                    <button id="modal-edit-btn" class="action-btn">Edit Card</button>
+                    <button id="modal-delete-btn" class="action-btn danger-btn">Delete Card</button>
+                </div>
+            </div>
+
+            <!-- View for editing the flashcard (initially hidden) -->
+            <div id="modal-edit-form-view" style="display: none;">
+                <h3>Edit Flashcard</h3>
+                <div class="form-group">
+                    <label for="edit-question-input">Question (Markdown):</label>
+                    <textarea id="edit-question-input"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-answer-input">Answer (Markdown):</label>
+                    <textarea id="edit-answer-input"></textarea>
+                </div>
+                <div class="edit-actions">
+                    <button id="save-edit-btn" class="action-btn">Save Changes</button>
+                    <button id="cancel-edit-btn" class="action-btn secondary-btn">Cancel</button>
+                </div>
+            </div>
+
+            <div class="modal-navigation">
+                <button id="modal-prev-btn" class="modal-nav-btn">&larr; Previous</button>
+                <button id="modal-next-btn" class="modal-nav-btn">Next &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
