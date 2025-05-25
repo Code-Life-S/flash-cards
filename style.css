@@ -357,38 +357,6 @@ button:active { /* Subtle press effect */
     }
 }
 
-/* Temporary Diagnostic Styles - Remove After Debugging */
-#modal-flashcard-container {
-    border: 2px dashed lime !important; /* Added !important to ensure visibility */
-    padding: 5px !important; /* To see the container bounds clearly */
-    background-color: rgba(0, 255, 0, 0.1) !important; /* Slight background tint */
-}
-#modal-flashcard-container .flashcard {
-    border: 2px solid red !important;
-    min-height: 50px !important; /* Ensure it's visible even if height calculation is off */
-    background-color: rgba(255, 0, 0, 0.1) !important;
-}
-#modal-flashcard-container .flashcard-inner {
-    border: 2px solid blue !important;
-    min-height: 40px !important;
-    background-color: rgba(0, 0, 255, 0.1) !important;
-}
-#modal-flashcard-container .flashcard-front {
-    border: 2px solid yellow !important;
-    min-height: 30px !important;
-    position: relative !important; /* Ensure z-index works if needed for visibility */
-    z-index: 1 !important; /* Ensure it's above back if transform is not perfect */
-    background-color: rgba(255, 255, 0, 0.1) !important;
-}
-#modal-flashcard-container .flashcard-back {
-    border: 2px solid orange !important;
-    min-height: 30px !important;
-    position: relative !important; /* Ensure z-index works */
-    /* z-index: 0; */ /* Backface visibility should handle this */
-    background-color: rgba(255, 165, 0, 0.1) !important;
-}
-/* End of Temporary Diagnostic Styles */
-
 /* Modal Edit Form Styles */
 .modal-card-actions {
     margin-top: 1rem;
