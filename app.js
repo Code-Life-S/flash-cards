@@ -325,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modalFlashcardContainer.appendChild(cardDiv);
         
         // Ensure correct views are shown when displaying a card
-        if(modalFlashcardView) modalFlashcardView.style.display = 'block';
+        if(modalFlashcardView) modalFlashcardView.style.display = 'flex';
         if(modalEditFormView) modalEditFormView.style.display = 'none';
         if(modalNavigation) modalNavigation.style.display = 'flex';
 
@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openModal(topicActualId, cardActualId) {
         // Ensure edit form is hidden and card view is shown by default when opening modal
-        if(modalFlashcardView) modalFlashcardView.style.display = 'block';
+        if(modalFlashcardView) modalFlashcardView.style.display = 'flex';
         if(modalEditFormView) modalEditFormView.style.display = 'none';
         if(modalNavigation) modalNavigation.style.display = 'flex';
 
@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             modalFlashcardContainer.innerHTML = ''; 
             // Reset views to default state for next open
-            if(modalFlashcardView) modalFlashcardView.style.display = 'block';
+            if(modalFlashcardView) modalFlashcardView.style.display = 'flex';
             if(modalEditFormView) modalEditFormView.style.display = 'none';
             if(modalNavigation) modalNavigation.style.display = 'flex';
         }, 300); 
@@ -430,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if(modalFlashcardView) modalFlashcardView.style.display = 'none';
         if(modalNavigation) modalNavigation.style.display = 'none'; 
-        if(modalEditFormView) modalEditFormView.style.display = 'block';
+        if(modalEditFormView) modalEditFormView.style.display = 'flex';
     }
 
     function cancelEditFlashcard() {
